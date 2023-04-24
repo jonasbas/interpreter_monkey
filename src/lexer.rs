@@ -34,6 +34,7 @@ impl Lexer {
         }
 
         self.position = self.read_position;
+        self.read_position += 1;
     }
 
     fn next_token(&mut self) -> Token {
@@ -114,4 +115,3 @@ mod tests {
         }
     }
 }
-
