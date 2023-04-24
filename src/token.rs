@@ -10,6 +10,10 @@ pub enum TokenType {
     //Operators
     ASSIGN,
     PLUS,
+    MINUS,
+    BANG,
+    ASTERISK,
+    SLASH,
 
     //Delimiters
     COMMA,
@@ -25,6 +29,7 @@ pub enum TokenType {
     LET,
 }
 
+#[derive(Debug)]
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String,
