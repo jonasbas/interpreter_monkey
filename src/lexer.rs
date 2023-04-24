@@ -20,58 +20,27 @@ impl Lexer {
         lexer
     }
 
-    fn read_char(&mut self) {
-        if self.read_position >= self.input.len() {
-            self.ch = char::MAX;
-        } else {
-            self.ch = self
-                .input
-                .chars()
-                .enumerate()
-                .find(|(index, _c)| index == &self.read_position)
-                .unwrap_or((0, char::MAX))
-                .1;
-        }
-
-        self.position = self.read_position;
-        self.read_position += 1;
-    }
-
-    fn read_identifier(&mut self) -> Token {
-        let position = self.position;
-        while is_letter(self.ch) {
-            self.read_char();
-        }
-
-        let literal = &self.input[position..self.position];
-
-        let token_type = match literal {
-            "fn" => TokenType::FUNCTION,
-            "let" => TokenType::LET,
-            "return" => TokenType::RETURN,
-            "true" => TokenType::TRUE,
-            "false" => TokenType::FALSE,
-            "if" => TokenType::IF,
-            "else" => TokenType::ELSE,
-            _ => TokenType::IDENT,
-        };
-
-        Token {
-            token_type,
-            literal: literal.to_string(),
-        }
-    }
-
     fn next_token(&mut self) -> Token {
         self.skip_whitespaces();
 
         let token_char = self.ch;
         let char_string = token_char.to_string();
         let token = match token_char {
-            '=' => Token {
-                token_type: TokenType::ASSIGN,
-                literal: char_string,
-            },
+            '=' => {
+                if self.peek_char() == '=' {
+                    let tmp_char = self.ch;
+                    self.read_char();
+                    Token {
+                        token_type: TokenType::EQ,
+                        literal: tmp_char.to_string() + self.ch.to_string().as_str(),
+                    }
+                } else {
+                    Token {
+                        token_type: TokenType::ASSIGN,
+                        literal: char_string,
+                    }
+                }
+            }
             ';' => Token {
                 token_type: TokenType::SEMICOLON,
                 literal: char_string,
@@ -108,10 +77,21 @@ impl Lexer {
                 token_type: TokenType::SLASH,
                 literal: char_string,
             },
-            '!' => Token {
-                token_type: TokenType::BANG,
-                literal: char_string,
-            },
+            '!' => {
+                if self.peek_char() == '=' {
+                    let tmp_char = self.ch;
+                    self.read_char();
+                    Token {
+                        token_type: TokenType::NOT_EQ,
+                        literal: tmp_char.to_string() + self.ch.to_string().as_str(),
+                    }
+                } else {
+                    Token {
+                        token_type: TokenType::BANG,
+                        literal: char_string,
+                    }
+                }
+            }
             '*' => Token {
                 token_type: TokenType::ASTERISK,
                 literal: char_string,
@@ -150,6 +130,47 @@ impl Lexer {
         token
     }
 
+    fn read_char(&mut self) {
+        if self.read_position >= self.input.len() {
+            self.ch = char::MAX;
+        } else {
+            self.ch = self
+                .input
+                .char_indices()
+                .find(|(index, _c)| index == &self.read_position)
+                .map(|x| x.1)
+                .unwrap_or(char::MAX);
+        }
+
+        self.position = self.read_position;
+        self.read_position += 1;
+    }
+
+    fn read_identifier(&mut self) -> Token {
+        let position = self.position;
+        while is_letter(self.ch) {
+            self.read_char();
+        }
+
+        let literal = &self.input[position..self.position];
+
+        let token_type = match literal {
+            "fn" => TokenType::FUNCTION,
+            "let" => TokenType::LET,
+            "return" => TokenType::RETURN,
+            "true" => TokenType::TRUE,
+            "false" => TokenType::FALSE,
+            "if" => TokenType::IF,
+            "else" => TokenType::ELSE,
+            _ => TokenType::IDENT,
+        };
+
+        Token {
+            token_type,
+            literal: literal.to_string(),
+        }
+    }
+
     fn read_number(&mut self) -> String {
         let position = self.position;
         while is_digit(self.ch) {
@@ -157,6 +178,18 @@ impl Lexer {
         }
 
         self.input[position..self.position].to_string()
+    }
+
+    fn peek_char(&self) -> char {
+        if self.read_position >= self.input.len() {
+            char::MAX
+        } else {
+            self.input
+                .char_indices()
+                .find(|x| x.0 == self.read_position)
+                .map(|x| x.1)
+                .unwrap_or(char::MAX)
+        }
     }
 
     fn skip_whitespaces(&mut self) {
@@ -217,7 +250,10 @@ mod tests {
             return true;
         } else {
             return false;
-        }";
+        }
+
+        10 == 10;
+        10 != 9;";
 
         let expected = vec![
             (TokenType::LET, "let"),
@@ -285,6 +321,14 @@ mod tests {
             (TokenType::FALSE, "false"),
             (TokenType::SEMICOLON, ";"),
             (TokenType::RBRACE, "}"),
+            (TokenType::INT, "10"),
+            (TokenType::EQ, "=="),
+            (TokenType::INT, "10"),
+            (TokenType::SEMICOLON, ";"),
+            (TokenType::INT, "10"),
+            (TokenType::NOT_EQ, "!="),
+            (TokenType::INT, "9"),
+            (TokenType::SEMICOLON, ";"),
             (TokenType::EOF, ""),
         ];
 
