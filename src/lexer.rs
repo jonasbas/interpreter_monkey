@@ -48,6 +48,11 @@ impl Lexer {
         let token_type = match literal {
             "fn" => TokenType::FUNCTION,
             "let" => TokenType::LET,
+            "return" => TokenType::RETURN,
+            "true" => TokenType::TRUE,
+            "false" => TokenType::FALSE,
+            "if" => TokenType::IF,
+            "else" => TokenType::ELSE,
             _ => TokenType::IDENT,
         };
 
@@ -206,7 +211,13 @@ mod tests {
         
         let result = add(five, ten);
         !-/*5;
-        5 < 10 > 5;";
+        5 < 10 > 5;
+
+        if (5 < 10) {
+            return true;
+        } else {
+            return false;
+        }";
 
         let expected = vec![
             (TokenType::LET, "let"),
@@ -257,6 +268,23 @@ mod tests {
             (TokenType::GT, ">"),
             (TokenType::INT, "5"),
             (TokenType::SEMICOLON, ";"),
+            (TokenType::IF, "if"),
+            (TokenType::LPAREN, "("),
+            (TokenType::INT, "5"),
+            (TokenType::LT, "<"),
+            (TokenType::INT, "10"),
+            (TokenType::RPAREN, ")"),
+            (TokenType::LBRACE, "{"),
+            (TokenType::RETURN, "return"),
+            (TokenType::TRUE, "true"),
+            (TokenType::SEMICOLON, ";"),
+            (TokenType::RBRACE, "}"),
+            (TokenType::ELSE, "else"),
+            (TokenType::LBRACE, "{"),
+            (TokenType::RETURN, "return"),
+            (TokenType::FALSE, "false"),
+            (TokenType::SEMICOLON, ";"),
+            (TokenType::RBRACE, "}"),
             (TokenType::EOF, ""),
         ];
 
