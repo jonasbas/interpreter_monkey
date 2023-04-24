@@ -95,6 +95,30 @@ impl Lexer {
                 token_type: TokenType::RBRACE,
                 literal: char_string,
             },
+            '-' => Token {
+                token_type: TokenType::MINUS,
+                literal: char_string,
+            },
+            '/' => Token {
+                token_type: TokenType::SLASH,
+                literal: char_string,
+            },
+            '!' => Token {
+                token_type: TokenType::BANG,
+                literal: char_string,
+            },
+            '*' => Token {
+                token_type: TokenType::ASTERISK,
+                literal: char_string,
+            },
+            '<' => Token {
+                token_type: TokenType::LT,
+                literal: char_string,
+            },
+            '>' => Token {
+                token_type: TokenType::GT,
+                literal: char_string,
+            },
             char::MAX => Token {
                 token_type: TokenType::EOF,
                 literal: "".to_string(),
