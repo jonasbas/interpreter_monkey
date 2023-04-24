@@ -180,7 +180,9 @@ mod tests {
             x + y;
         };
         
-        let result = add(five, ten);";
+        let result = add(five, ten);
+        !-/*5;
+        5 < 10 > 5;";
 
         let expected = vec![
             (TokenType::LET, "let"),
@@ -218,6 +220,18 @@ mod tests {
             (TokenType::COMMA, ","),
             (TokenType::IDENT, "ten"),
             (TokenType::RPAREN, ")"),
+            (TokenType::SEMICOLON, ";"),
+            (TokenType::BANG, "!"),
+            (TokenType::MINUS, "-"),
+            (TokenType::SLASH, "/"),
+            (TokenType::ASTERISK, "*"),
+            (TokenType::INT, "5"),
+            (TokenType::SEMICOLON, ";"),
+            (TokenType::INT, "5"),
+            (TokenType::LT, "<"),
+            (TokenType::INT, "10"),
+            (TokenType::GT, ">"),
+            (TokenType::INT, "5"),
             (TokenType::SEMICOLON, ";"),
             (TokenType::EOF, ""),
         ];
