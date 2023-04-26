@@ -2,6 +2,7 @@
 use crate::repl::start_repl;
 
 mod ast;
+mod error;
 mod lexer;
 mod parser;
 mod repl;

@@ -1,5 +1,6 @@
 use crate::{
     ast::Programm,
+    error::ParsingError,
     lexer::Lexer,
     statements::{Expressions, Identifier, Statements},
     token::{Token, TokenType},
@@ -10,17 +11,20 @@ struct Parser {
     lexer: Lexer,
     cur_token: Token,
     peek_token: Token,
+    errors: Vec<ParsingError>,
 }
 
 impl Parser {
     fn new(mut lexer: Lexer) -> Self {
         let cur_token = lexer.next_token();
         let peek_token = lexer.next_token();
+        let errors = vec![];
 
         Parser {
             lexer,
             cur_token,
             peek_token,
+            errors,
         }
     }
 
@@ -32,15 +36,20 @@ impl Parser {
     pub fn parse_programm(&mut self) -> Option<Programm> {
         let mut statements = vec![];
         while self.cur_token.token_type != TokenType::EOF {
-            let statement = self.parse_statement().expect("no statement found"); //TODO: No unwrap
-            statements.push(statement);
-            self.next_token();
+            let statement = self.parse_statement();
+
+            if let Err(e) = statement {
+                self.errors.push(e);
+            } else {
+                statements.push(statement.expect("the world is ending"));
+                self.next_token();
+            }
         }
 
         Some(Programm { statements })
     }
 
-    fn parse_statement(&mut self) -> Option<Statements> {
+    fn parse_statement(&mut self) -> Result<Statements, ParsingError> {
         let token = &self.cur_token;
         match token.token_type {
             TokenType::ILLEGAL => todo!(),
@@ -73,26 +82,22 @@ impl Parser {
         }
     }
 
-    fn parse_let_statement(&mut self) -> Option<Statements> {
+    fn parse_let_statement(&mut self) -> Result<Statements, ParsingError> {
         let let_token = self.cur_token.clone();
-        if !self.expect_peek(TokenType::IDENT) {
-            return None;
-        }
+        self.expect_peek(TokenType::IDENT)?;
 
         let identifier = Identifier {
             token: self.cur_token.clone(),
             value: self.cur_token.literal.to_owned(),
         };
 
-        if !self.expect_peek(TokenType::ASSIGN) {
-            return None;
-        }
+        self.expect_peek(TokenType::ASSIGN)?;
 
         while !self.cur_token_is(TokenType::SEMICOLON) {
             self.next_token();
         }
 
-        Some(Statements::LetStatement(
+        Ok(Statements::LetStatement(
             let_token,
             identifier,
             Expressions::Variant1,
@@ -107,13 +112,17 @@ impl Parser {
         self.peek_token.token_type == token_type
     }
 
-    fn expect_peek(&mut self, token_type: TokenType) -> bool {
+    fn expect_peek(&mut self, token_type: TokenType) -> Result<(), ParsingError> {
         if self.peek_token_is(token_type) {
             self.next_token();
-            return true;
+            return Err(ParsingError(format!(
+                "Expected {:?}, found {}",
+                token_type,
+                self.peek_token.literal.to_owned()
+            )));
         }
 
-        false
+        Ok(())
     }
 }
 
