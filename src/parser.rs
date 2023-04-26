@@ -42,8 +42,9 @@ impl Parser {
                 self.errors.push(e);
             } else {
                 statements.push(statement.expect("the world is ending"));
-                self.next_token();
             }
+
+            self.next_token();
         }
 
         Some(Programm { statements })
@@ -115,14 +116,14 @@ impl Parser {
     fn expect_peek(&mut self, token_type: TokenType) -> Result<(), ParsingError> {
         if self.peek_token_is(token_type) {
             self.next_token();
-            return Err(ParsingError(format!(
-                "Expected {:?}, found {}",
-                token_type,
-                self.peek_token.literal.to_owned()
-            )));
+            return Ok(());
         }
 
-        Ok(())
+        Err(ParsingError(format!(
+            "Expected {:?}, found {}",
+            token_type,
+            self.peek_token.literal.to_owned()
+        )))
     }
 }
 
