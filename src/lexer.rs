@@ -336,7 +336,6 @@ mod tests {
 
         for x in expected.iter() {
             let token = lexer.next_token();
-            println!("{:?}", token);
             assert_eq!(x, &(token.token_type, token.literal.as_str()))
         }
     }
