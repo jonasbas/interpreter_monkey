@@ -1,10 +1,13 @@
+#![allow(dead_code)]
 use crate::repl::start_repl;
 
+mod ast;
 mod lexer;
+mod parser;
 mod repl;
+mod statements;
 mod token;
 
 fn main() {
-    println!("Monkey REPL v.0.1");
     start_repl();
 }
