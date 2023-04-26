@@ -79,7 +79,7 @@ impl Parser {
             TokenType::FALSE => todo!(),
             TokenType::IF => todo!(),
             TokenType::ELSE => todo!(),
-            TokenType::RETURN => todo!(),
+            TokenType::RETURN => self.parse_return_statement(),
         }
     }
 
@@ -94,6 +94,7 @@ impl Parser {
 
         self.expect_peek(TokenType::ASSIGN)?;
 
+        //TODO: expressions
         while !self.cur_token_is(TokenType::SEMICOLON) {
             self.next_token();
         }
@@ -101,6 +102,21 @@ impl Parser {
         Ok(Statements::LetStatement(
             let_token,
             identifier,
+            Expressions::Variant1,
+        ))
+    }
+
+    fn parse_return_statement(&mut self) -> Result<Statements, ParsingError> {
+        let cur_token = self.cur_token.clone();
+
+        self.next_token();
+
+        while !self.cur_token_is(TokenType::SEMICOLON) {
+            self.next_token();
+        }
+
+        Ok(Statements::ReturnStatement(
+            cur_token,
             Expressions::Variant1,
         ))
     }
@@ -124,6 +140,12 @@ impl Parser {
             token_type,
             self.peek_token.literal.to_owned()
         )))
+    }
+
+    fn print_errors(&self) {
+        for error in self.errors.iter() {
+            println!("{}", error.0);
+        }
     }
 }
 
@@ -153,19 +175,47 @@ mod tests {
         }
 
         let programm = programm.unwrap();
-        assert!(programm.statements.len() == 3);
+        assert_eq!(programm.statements.len(), 3);
 
         let expected = vec!["x", "y", "foobar"];
 
         for (index, statement) in programm.statements.iter().enumerate() {
             if let Statements::LetStatement(_, identifier, _) = statement {
-                assert!(statement.token_literal() == "let");
+                assert_eq!(statement.token_literal(), "let");
 
                 let name = expected[index].to_string();
-                assert!(identifier.value == name);
-                assert!(identifier.token_literal() == name);
+                assert_eq!(identifier.value, name);
+                assert_eq!(identifier.token_literal(), name);
             } else {
                 panic!("statement is not a let statement");
+            }
+        }
+    }
+
+    #[test]
+    fn test_return_statemetn() {
+        let input = "
+            return 5;
+            return 10;
+            return 993322;
+            ";
+
+        let lexer = Lexer::new(input);
+        let mut parser = Parser::new(lexer);
+
+        let programm = parser.parse_programm();
+
+        parser.print_errors();
+
+        let programm = programm.unwrap();
+
+        assert_eq!(programm.statements.len(), 3);
+
+        for statement in programm.statements.iter() {
+            if let Statements::ReturnStatement(token, _) = statement {
+                assert_eq!(token.literal, "return");
+            } else {
+                panic!("expected return statement");
             }
         }
     }

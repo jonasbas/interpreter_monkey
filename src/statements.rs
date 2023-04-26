@@ -3,7 +3,7 @@ use crate::token::Token;
 #[derive(Debug)]
 pub enum Statements {
     LetStatement(Token, Identifier, Expressions),
-    Statement,
+    ReturnStatement(Token, Expressions),
 }
 
 //Placeholder Expressions
@@ -22,7 +22,7 @@ impl Node for Statements {
         println!("In Statement token_literal");
         match self {
             Statements::LetStatement(token, _, _) => token.literal.to_owned(),
-            Statements::Statement => todo!("Placeholder"),
+            Statements::ReturnStatement(token, _) => token.literal.to_owned(),
         }
     }
 }
