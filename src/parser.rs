@@ -6,8 +6,17 @@ use crate::{
     token::{Token, TokenType},
 };
 
+const BLANK: u8 = 0;
+const LOWEST: u8 = 1;
+const EQUALS: u8 = 2;
+const LESSGREATER: u8 = 3;
+const SUM: u8 = 4;
+const PRODUCT: u8 = 5;
+const PREFIX: u8 = 6;
+const CALL: u8 = 7;
+
 #[derive(Debug)]
-struct Parser {
+pub struct Parser {
     lexer: Lexer,
     cur_token: Token,
     peek_token: Token,
@@ -15,7 +24,7 @@ struct Parser {
 }
 
 impl Parser {
-    fn new(mut lexer: Lexer) -> Self {
+    pub fn new(mut lexer: Lexer) -> Self {
         let cur_token = lexer.next_token();
         let peek_token = lexer.next_token();
         let errors = vec![];
@@ -53,33 +62,9 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Statements, ParsingError> {
         let token = &self.cur_token;
         match token.token_type {
-            TokenType::ILLEGAL => todo!(),
-            TokenType::EOF => todo!(),
-            TokenType::IDENT => todo!(),
-            TokenType::INT => todo!(),
-            TokenType::ASSIGN => todo!(),
-            TokenType::PLUS => todo!(),
-            TokenType::MINUS => todo!(),
-            TokenType::BANG => todo!(),
-            TokenType::ASTERISK => todo!(),
-            TokenType::SLASH => todo!(),
-            TokenType::LT => todo!(),
-            TokenType::GT => todo!(),
-            TokenType::EQ => todo!(),
-            TokenType::NOT_EQ => todo!(),
-            TokenType::COMMA => todo!(),
-            TokenType::SEMICOLON => todo!(),
-            TokenType::LPAREN => todo!(),
-            TokenType::RPAREN => todo!(),
-            TokenType::LBRACE => todo!(),
-            TokenType::RBRACE => todo!(),
-            TokenType::FUNCTION => todo!(),
             TokenType::LET => self.parse_let_statement(),
-            TokenType::TRUE => todo!(),
-            TokenType::FALSE => todo!(),
-            TokenType::IF => todo!(),
-            TokenType::ELSE => todo!(),
             TokenType::RETURN => self.parse_return_statement(),
+            _ => self.parse_expression_statement(),
         }
     }
 
@@ -111,6 +96,7 @@ impl Parser {
 
         self.next_token();
 
+        //TODO: expressions
         while !self.cur_token_is(TokenType::SEMICOLON) {
             self.next_token();
         }
@@ -119,6 +105,27 @@ impl Parser {
             cur_token,
             Expressions::Variant1,
         ))
+    }
+
+    fn parse_expression_statement(&mut self) -> Result<Statements, ParsingError> {
+        let cur_token = self.cur_token.clone();
+        let expression = self.parse_expression(LOWEST);
+
+        if self.peek_token_is(TokenType::SEMICOLON) {
+            self.next_token();
+        }
+
+        //TODO: no unwrap
+        Ok(Statements::ExpressionStatement(
+            cur_token,
+            expression.or(Some(Expressions::Variant1)).unwrap(),
+        ))
+    }
+
+    fn parse_expression(&self, lowest: u8) -> Option<Expressions> {
+        let left_exp = self.cur_token.token_type.prefix_parse();
+
+        left_exp
     }
 
     fn cur_token_is(&self, token_type: TokenType) -> bool {
@@ -142,7 +149,7 @@ impl Parser {
         )))
     }
 
-    fn print_errors(&self) {
+    pub fn print_errors(&self) {
         for error in self.errors.iter() {
             println!("{}", error.0);
         }
