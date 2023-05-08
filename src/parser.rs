@@ -125,7 +125,7 @@ impl Parser {
         self.prefix_parse()
     }
 
-    pub fn parse_integer_literal(&self) -> Option<Expressions> {
+    fn parse_integer_literal(&self) -> Option<Expressions> {
         let cur_token = self.cur_token.clone();
         let value = cur_token.literal.parse();
         if value.is_err() {
@@ -135,10 +135,27 @@ impl Parser {
         Some(Expressions::IntegerLiteral(cur_token, value.unwrap()))
     }
 
-    pub fn prefix_parse(&mut self) -> Option<Expressions> {
+    fn parse_prefix_expression(&mut self) -> Option<Expressions> {
+        let cur_token = self.cur_token.clone();
+        let operator = cur_token.literal.to_owned();
+        self.next_token();
+
+        //TODO: Safe unwrap
+        let exp = self.parse_expression(PREFIX).expect("Should not fail");
+
+        Some(Expressions::PrefixExpression(
+            cur_token,
+            operator,
+            Box::new(exp),
+        ))
+    }
+
+    fn prefix_parse(&mut self) -> Option<Expressions> {
         match self.cur_token.token_type {
             TokenType::Illegal => Some(Expressions::Variant1),
             TokenType::Int => self.parse_integer_literal(),
+            TokenType::Bang => self.parse_prefix_expression(),
+            TokenType::Minus => self.parse_prefix_expression(),
             _ => None,
         }
     }

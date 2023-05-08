@@ -34,7 +34,7 @@ impl Node for Expressions {
         match self {
             Expressions::Variant1 => todo!(),
             Expressions::IntegerLiteral(token, _) => token.literal.to_owned(),
-            Expressions::PrefixExpression(_, _, _) => todo!(),
+            Expressions::PrefixExpression(token, _, _) => token.literal.to_owned(),
         }
     }
 }
