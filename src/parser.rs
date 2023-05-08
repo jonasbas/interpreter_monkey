@@ -40,7 +40,7 @@ impl Parser {
 
     pub fn parse_programm(&mut self) -> Option<Programm> {
         let mut statements = vec![];
-        while self.cur_token.token_type != TokenType::EOF {
+        while self.cur_token.token_type != TokenType::Eof {
             let statement = self.parse_statement();
 
             if let Err(e) = statement {
@@ -61,29 +61,29 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Statements, ParsingError> {
         let token = &self.cur_token;
         match token.token_type {
-            TokenType::LET => self.parse_let_statement(),
-            TokenType::RETURN => self.parse_return_statement(),
+            TokenType::Let => self.parse_let_statement(),
+            TokenType::Return => self.parse_return_statement(),
             _ => self.parse_expression_statement(),
         }
     }
 
     fn parse_let_statement(&mut self) -> Result<Statements, ParsingError> {
         let let_token = self.cur_token.clone();
-        self.expect_peek(TokenType::IDENT)?;
+        self.expect_peek(TokenType::Ident)?;
 
         let identifier = Identifier {
             token: self.cur_token.clone(),
             value: self.cur_token.literal.to_owned(),
         };
 
-        self.expect_peek(TokenType::ASSIGN)?;
+        self.expect_peek(TokenType::Assign)?;
 
         //TODO: expressions
-        while !self.cur_token_is(TokenType::SEMICOLON) {
+        while !self.cur_token_is(TokenType::Semicolon) {
             self.next_token();
         }
 
-        Ok(Statements::LetStatement(
+        Ok(Statements::Let(
             let_token,
             identifier,
             Expressions::Variant1,
@@ -96,26 +96,23 @@ impl Parser {
         self.next_token();
 
         //TODO: expressions
-        while !self.cur_token_is(TokenType::SEMICOLON) {
+        while !self.cur_token_is(TokenType::Semicolon) {
             self.next_token();
         }
 
-        Ok(Statements::ReturnStatement(
-            cur_token,
-            Expressions::Variant1,
-        ))
+        Ok(Statements::Return(cur_token, Expressions::Variant1))
     }
 
     fn parse_expression_statement(&mut self) -> Result<Statements, ParsingError> {
         let cur_token = self.cur_token.clone();
         let expression = self.parse_expression(LOWEST);
 
-        if self.peek_token_is(TokenType::SEMICOLON) {
+        if self.peek_token_is(TokenType::Semicolon) {
             self.next_token();
         }
 
         //TODO: no unwrap
-        Ok(Statements::ExpressionStatement(
+        Ok(Statements::Expression(
             cur_token,
             expression.unwrap_or(Expressions::Variant1),
         ))
@@ -125,8 +122,6 @@ impl Parser {
 //Expressions
 impl Parser {
     fn parse_expression(&mut self, _lowest: u8) -> Option<Expressions> {
-        
-
         self.prefix_parse()
     }
 
@@ -142,8 +137,8 @@ impl Parser {
 
     pub fn prefix_parse(&mut self) -> Option<Expressions> {
         match self.cur_token.token_type {
-            TokenType::ILLEGAL => Some(Expressions::Variant1),
-            TokenType::INT => self.parse_integer_literal(),
+            TokenType::Illegal => Some(Expressions::Variant1),
+            TokenType::Int => self.parse_integer_literal(),
             _ => None,
         }
     }
@@ -214,7 +209,7 @@ mod tests {
         let expected = vec!["x", "y", "foobar"];
 
         for (index, statement) in programm.statements.iter().enumerate() {
-            if let Statements::LetStatement(_, identifier, _) = statement {
+            if let Statements::Let(_, identifier, _) = statement {
                 assert_eq!(statement.token_literal(), "let");
 
                 let name = expected[index].to_string();
@@ -246,7 +241,7 @@ mod tests {
         assert_eq!(programm.statements.len(), 3);
 
         for statement in programm.statements.iter() {
-            if let Statements::ReturnStatement(token, _) = statement {
+            if let Statements::Return(token, _) = statement {
                 assert_eq!(token.literal, "return");
             } else {
                 panic!("expected return statement");
@@ -267,7 +262,7 @@ mod tests {
 
             assert_eq!(1, program.statements.len());
             let statement = &program.statements[0];
-            if let Statements::ExpressionStatement(_, exp) = statement {
+            if let Statements::Expression(_, exp) = statement {
                 if let Expressions::PrefixExpression(_, op, _) = exp {
                     assert_eq!(inputs.1, op.as_str());
                 }

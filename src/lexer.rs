@@ -32,50 +32,50 @@ impl Lexer {
                     let tmp_char = self.ch;
                     self.read_char();
                     Token {
-                        token_type: TokenType::EQ,
+                        token_type: TokenType::Equals,
                         literal: tmp_char.to_string() + self.ch.to_string().as_str(),
                     }
                 } else {
                     Token {
-                        token_type: TokenType::ASSIGN,
+                        token_type: TokenType::Assign,
                         literal: char_string,
                     }
                 }
             }
             ';' => Token {
-                token_type: TokenType::SEMICOLON,
+                token_type: TokenType::Semicolon,
                 literal: char_string,
             },
             '(' => Token {
-                token_type: TokenType::LPAREN,
+                token_type: TokenType::LParen,
                 literal: char_string,
             },
             ')' => Token {
-                token_type: TokenType::RPAREN,
+                token_type: TokenType::RParen,
                 literal: char_string,
             },
             ',' => Token {
-                token_type: TokenType::COMMA,
+                token_type: TokenType::Comma,
                 literal: char_string,
             },
             '+' => Token {
-                token_type: TokenType::PLUS,
+                token_type: TokenType::Plus,
                 literal: char_string,
             },
             '{' => Token {
-                token_type: TokenType::LBRACE,
+                token_type: TokenType::LBrace,
                 literal: char_string,
             },
             '}' => Token {
-                token_type: TokenType::RBRACE,
+                token_type: TokenType::RBrace,
                 literal: char_string,
             },
             '-' => Token {
-                token_type: TokenType::MINUS,
+                token_type: TokenType::Minus,
                 literal: char_string,
             },
             '/' => Token {
-                token_type: TokenType::SLASH,
+                token_type: TokenType::Slash,
                 literal: char_string,
             },
             '!' => {
@@ -83,30 +83,30 @@ impl Lexer {
                     let tmp_char = self.ch;
                     self.read_char();
                     Token {
-                        token_type: TokenType::NOT_EQ,
+                        token_type: TokenType::NotEquals,
                         literal: tmp_char.to_string() + self.ch.to_string().as_str(),
                     }
                 } else {
                     Token {
-                        token_type: TokenType::BANG,
+                        token_type: TokenType::Bang,
                         literal: char_string,
                     }
                 }
             }
             '*' => Token {
-                token_type: TokenType::ASTERISK,
+                token_type: TokenType::Asterisk,
                 literal: char_string,
             },
             '<' => Token {
-                token_type: TokenType::LT,
+                token_type: TokenType::Lt,
                 literal: char_string,
             },
             '>' => Token {
-                token_type: TokenType::GT,
+                token_type: TokenType::Gt,
                 literal: char_string,
             },
             char::MAX => Token {
-                token_type: TokenType::EOF,
+                token_type: TokenType::Eof,
                 literal: "".to_string(),
             },
             _ => {
@@ -114,12 +114,12 @@ impl Lexer {
                     return self.read_identifier();
                 } else if is_digit(token_char) {
                     return Token {
-                        token_type: TokenType::INT,
+                        token_type: TokenType::Int,
                         literal: self.read_number(),
                     };
                 } else {
                     return Token {
-                        token_type: TokenType::ILLEGAL,
+                        token_type: TokenType::Illegal,
                         literal: char_string,
                     };
                 }
@@ -156,14 +156,14 @@ impl Lexer {
         let literal = &self.input[position..self.position];
 
         let token_type = match literal {
-            "fn" => TokenType::FUNCTION,
-            "let" => TokenType::LET,
-            "return" => TokenType::RETURN,
-            "true" => TokenType::TRUE,
-            "false" => TokenType::FALSE,
-            "if" => TokenType::IF,
-            "else" => TokenType::ELSE,
-            _ => TokenType::IDENT,
+            "fn" => TokenType::Function,
+            "let" => TokenType::Let,
+            "return" => TokenType::Return,
+            "true" => TokenType::True,
+            "false" => TokenType::False,
+            "if" => TokenType::If,
+            "else" => TokenType::Else,
+            _ => TokenType::Ident,
         };
 
         Token {
@@ -217,14 +217,14 @@ mod tests {
     fn next_token_test() {
         let string_to_parse = "=+(){},;";
         let expected = vec![
-            TokenType::ASSIGN,
-            TokenType::PLUS,
-            TokenType::LPAREN,
-            TokenType::RPAREN,
-            TokenType::LBRACE,
-            TokenType::RBRACE,
-            TokenType::COMMA,
-            TokenType::SEMICOLON,
+            TokenType::Assign,
+            TokenType::Plus,
+            TokenType::LParen,
+            TokenType::RParen,
+            TokenType::LBrace,
+            TokenType::RBrace,
+            TokenType::Comma,
+            TokenType::Semicolon,
         ];
 
         let mut lexer = Lexer::new(string_to_parse);
@@ -257,80 +257,80 @@ mod tests {
         10 != 9;";
 
         let expected = vec![
-            (TokenType::LET, "let"),
-            (TokenType::IDENT, "five"),
-            (TokenType::ASSIGN, "="),
-            (TokenType::INT, "5"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::LET, "let"),
-            (TokenType::IDENT, "ten"),
-            (TokenType::ASSIGN, "="),
-            (TokenType::INT, "10"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::LET, "let"),
-            (TokenType::IDENT, "add"),
-            (TokenType::ASSIGN, "="),
-            (TokenType::FUNCTION, "fn"),
-            (TokenType::LPAREN, "("),
-            (TokenType::IDENT, "x"),
-            (TokenType::COMMA, ","),
-            (TokenType::IDENT, "y"),
-            (TokenType::RPAREN, ")"),
-            (TokenType::LBRACE, "{"),
-            (TokenType::IDENT, "x"),
-            (TokenType::PLUS, "+"),
-            (TokenType::IDENT, "y"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::RBRACE, "}"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::LET, "let"),
-            (TokenType::IDENT, "result"),
-            (TokenType::ASSIGN, "="),
-            (TokenType::IDENT, "add"),
-            (TokenType::LPAREN, "("),
-            (TokenType::IDENT, "five"),
-            (TokenType::COMMA, ","),
-            (TokenType::IDENT, "ten"),
-            (TokenType::RPAREN, ")"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::BANG, "!"),
-            (TokenType::MINUS, "-"),
-            (TokenType::SLASH, "/"),
-            (TokenType::ASTERISK, "*"),
-            (TokenType::INT, "5"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::INT, "5"),
-            (TokenType::LT, "<"),
-            (TokenType::INT, "10"),
-            (TokenType::GT, ">"),
-            (TokenType::INT, "5"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::IF, "if"),
-            (TokenType::LPAREN, "("),
-            (TokenType::INT, "5"),
-            (TokenType::LT, "<"),
-            (TokenType::INT, "10"),
-            (TokenType::RPAREN, ")"),
-            (TokenType::LBRACE, "{"),
-            (TokenType::RETURN, "return"),
-            (TokenType::TRUE, "true"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::RBRACE, "}"),
-            (TokenType::ELSE, "else"),
-            (TokenType::LBRACE, "{"),
-            (TokenType::RETURN, "return"),
-            (TokenType::FALSE, "false"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::RBRACE, "}"),
-            (TokenType::INT, "10"),
-            (TokenType::EQ, "=="),
-            (TokenType::INT, "10"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::INT, "10"),
-            (TokenType::NOT_EQ, "!="),
-            (TokenType::INT, "9"),
-            (TokenType::SEMICOLON, ";"),
-            (TokenType::EOF, ""),
+            (TokenType::Let, "let"),
+            (TokenType::Ident, "five"),
+            (TokenType::Assign, "="),
+            (TokenType::Int, "5"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Let, "let"),
+            (TokenType::Ident, "ten"),
+            (TokenType::Assign, "="),
+            (TokenType::Int, "10"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Let, "let"),
+            (TokenType::Ident, "add"),
+            (TokenType::Assign, "="),
+            (TokenType::Function, "fn"),
+            (TokenType::LParen, "("),
+            (TokenType::Ident, "x"),
+            (TokenType::Comma, ","),
+            (TokenType::Ident, "y"),
+            (TokenType::RParen, ")"),
+            (TokenType::LBrace, "{"),
+            (TokenType::Ident, "x"),
+            (TokenType::Plus, "+"),
+            (TokenType::Ident, "y"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::RBrace, "}"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Let, "let"),
+            (TokenType::Ident, "result"),
+            (TokenType::Assign, "="),
+            (TokenType::Ident, "add"),
+            (TokenType::LParen, "("),
+            (TokenType::Ident, "five"),
+            (TokenType::Comma, ","),
+            (TokenType::Ident, "ten"),
+            (TokenType::RParen, ")"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Bang, "!"),
+            (TokenType::Minus, "-"),
+            (TokenType::Slash, "/"),
+            (TokenType::Asterisk, "*"),
+            (TokenType::Int, "5"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Int, "5"),
+            (TokenType::Lt, "<"),
+            (TokenType::Int, "10"),
+            (TokenType::Gt, ">"),
+            (TokenType::Int, "5"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::If, "if"),
+            (TokenType::LParen, "("),
+            (TokenType::Int, "5"),
+            (TokenType::Lt, "<"),
+            (TokenType::Int, "10"),
+            (TokenType::RParen, ")"),
+            (TokenType::LBrace, "{"),
+            (TokenType::Return, "return"),
+            (TokenType::True, "true"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::RBrace, "}"),
+            (TokenType::Else, "else"),
+            (TokenType::LBrace, "{"),
+            (TokenType::Return, "return"),
+            (TokenType::False, "false"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::RBrace, "}"),
+            (TokenType::Int, "10"),
+            (TokenType::Equals, "=="),
+            (TokenType::Int, "10"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Int, "10"),
+            (TokenType::NotEquals, "!="),
+            (TokenType::Int, "9"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Eof, ""),
         ];
 
         let mut lexer = Lexer::new(string_to_parse);

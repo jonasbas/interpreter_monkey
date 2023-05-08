@@ -21,7 +21,7 @@ pub fn start_repl() {
 
             loop {
                 let token = lexer.next_token();
-                if token.token_type == TokenType::EOF {
+                if token.token_type == TokenType::Eof {
                     println!("Encountered EOF.");
                     break;
                 }

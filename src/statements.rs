@@ -2,9 +2,9 @@ use crate::token::Token;
 
 #[derive(Debug, PartialEq)]
 pub enum Statements {
-    LetStatement(Token, Identifier, Expressions),
-    ReturnStatement(Token, Expressions),
-    ExpressionStatement(Token, Expressions),
+    Let(Token, Identifier, Expressions),
+    Return(Token, Expressions),
+    Expression(Token, Expressions),
 }
 
 //Placeholder Expressions
@@ -22,9 +22,9 @@ pub trait Node {
 impl Node for Statements {
     fn token_literal(&self) -> String {
         match self {
-            Statements::LetStatement(token, _, _) => token.literal.to_owned(),
-            Statements::ReturnStatement(token, _) => token.literal.to_owned(),
-            Statements::ExpressionStatement(token, _) => token.literal.to_owned(),
+            Statements::Let(token, _, _) => token.literal.to_owned(),
+            Statements::Return(token, _) => token.literal.to_owned(),
+            Statements::Expression(token, _) => token.literal.to_owned(),
         }
     }
 }
@@ -72,7 +72,7 @@ mod tests {
         assert_eq!(1, program.statements.len());
 
         let expression = &program.statements[0];
-        if let Statements::ExpressionStatement(token, _) = expression {
+        if let Statements::Expression(token, _) = expression {
             assert_eq!("foobar", token.literal);
             assert_eq!("foobar", expression.token_literal())
         } else {
@@ -93,7 +93,7 @@ mod tests {
         assert_eq!(1, program.statements.len());
 
         let expression = &program.statements[0];
-        if let Statements::ExpressionStatement(_, exp) = expression {
+        if let Statements::Expression(_, exp) = expression {
             if let Expressions::IntegerLiteral(_, value) = exp {
                 assert_eq!(&5, value);
                 assert_eq!("5", exp.token_literal());
