@@ -23,6 +23,7 @@ pub struct Parser {
     errors: Vec<ParsingError>,
 }
 
+//Main impl
 impl Parser {
     pub fn new(mut lexer: Lexer) -> Self {
         let cur_token = lexer.next_token();
@@ -35,11 +36,6 @@ impl Parser {
             peek_token,
             errors,
         }
-    }
-
-    fn next_token(&mut self) {
-        self.cur_token = self.peek_token.clone();
-        self.peek_token = self.lexer.next_token();
     }
 
     pub fn parse_programm(&mut self) -> Option<Programm> {
@@ -58,7 +54,10 @@ impl Parser {
 
         Some(Programm { statements })
     }
+}
 
+//Statements
+impl Parser {
     fn parse_statement(&mut self) -> Result<Statements, ParsingError> {
         let token = &self.cur_token;
         match token.token_type {
@@ -121,13 +120,41 @@ impl Parser {
             expression.or(Some(Expressions::Variant1)).unwrap(),
         ))
     }
+}
 
-    fn parse_expression(&self, lowest: u8) -> Option<Expressions> {
-        let left_exp = self.cur_token.token_type.prefix_parse();
+//Expressions
+impl Parser {
+    fn parse_expression(&mut self, lowest: u8) -> Option<Expressions> {
+        let left_exp = self.prefix_parse();
 
         left_exp
     }
 
+    pub fn parse_integer_literal(&self) -> Option<Expressions> {
+        let cur_token = self.cur_token.clone();
+        let value = cur_token.literal.parse();
+        if let Err(_) = value {
+            return None;
+        }
+
+        Some(Expressions::IntegerLiteral(cur_token, value.unwrap()))
+    }
+
+    pub fn prefix_parse(&mut self) -> Option<Expressions> {
+        return match self.cur_token.token_type {
+            TokenType::ILLEGAL => Some(Expressions::Variant1),
+            TokenType::INT => self.parse_integer_literal(),
+            _ => None,
+        };
+    }
+}
+
+//Helper
+impl Parser {
+    fn next_token(&mut self) {
+        self.cur_token = self.peek_token.clone();
+        self.peek_token = self.lexer.next_token();
+    }
     fn cur_token_is(&self, token_type: TokenType) -> bool {
         self.cur_token.token_type == token_type
     }

@@ -1,4 +1,4 @@
-use crate::statements::Expressions;
+use crate::{parser::Parser, statements::Expressions};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
@@ -46,13 +46,4 @@ pub enum TokenType {
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String,
-}
-
-impl TokenType {
-    pub fn prefix_parse(&self) -> Option<Expressions> {
-        return match self {
-            TokenType::ILLEGAL => Some(Expressions::Variant1),
-            _ => None,
-        };
-    }
 }

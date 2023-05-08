@@ -11,7 +11,7 @@ pub enum Statements {
 #[derive(Debug, PartialEq)]
 pub enum Expressions {
     Variant1,
-    Variant2,
+    IntegerLiteral(Token, usize),
 }
 
 pub trait Node {
@@ -24,6 +24,15 @@ impl Node for Statements {
             Statements::LetStatement(token, _, _) => token.literal.to_owned(),
             Statements::ReturnStatement(token, _) => token.literal.to_owned(),
             Statements::ExpressionStatement(token, _) => token.literal.to_owned(),
+        }
+    }
+}
+
+impl Node for Expressions {
+    fn token_literal(&self) -> String {
+        match self {
+            Expressions::Variant1 => todo!(),
+            Expressions::IntegerLiteral(token, _) => token.literal.to_owned(),
         }
     }
 }
@@ -42,7 +51,11 @@ impl Node for Identifier {
 
 #[cfg(test)]
 mod tests {
-    use crate::{lexer::Lexer, parser::Parser, statements::Statements};
+    use crate::{
+        lexer::Lexer,
+        parser::Parser,
+        statements::{Expressions, Node, Statements},
+    };
 
     #[test]
     fn identifier_test() {
@@ -56,11 +69,37 @@ mod tests {
 
         assert_eq!(1, program.statements.len());
 
-        let test = &program.statements[0];
-        if let Statements::ExpressionStatement(token, _) = test {
+        let expression = &program.statements[0];
+        if let Statements::ExpressionStatement(token, _) = expression {
             assert_eq!("foobar", token.literal);
+            assert_eq!("foobar", expression.token_literal())
         } else {
             panic!("not an ExpressionStatement");
+        }
+    }
+
+    #[test]
+    fn integer_identifier_test() {
+        let input = "5;";
+
+        let lexer = Lexer::new(input);
+        let mut parser = Parser::new(lexer);
+
+        let program = parser.parse_programm().unwrap();
+        parser.print_errors();
+
+        assert_eq!(1, program.statements.len());
+
+        let expression = &program.statements[0];
+        if let Statements::ExpressionStatement(_, exp) = expression {
+            if let Expressions::IntegerLiteral(_, value) = exp {
+                assert_eq!(&5, value);
+                assert_eq!("5", exp.token_literal());
+            } else {
+                panic!("expression is not an integer literal");
+            }
+        } else {
+            panic!("statement is not an expression statement");
         }
     }
 }
