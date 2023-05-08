@@ -124,7 +124,7 @@ impl Parser {
 
 //Expressions
 impl Parser {
-    fn parse_expression(&mut self, lowest: u8) -> Option<Expressions> {
+    fn parse_expression(&mut self, _lowest: u8) -> Option<Expressions> {
         let left_exp = self.prefix_parse();
 
         left_exp
@@ -250,6 +250,27 @@ mod tests {
                 assert_eq!(token.literal, "return");
             } else {
                 panic!("expected return statement");
+            }
+        }
+    }
+
+    #[test]
+    fn parsing_prefix_expression_test() {
+        let test_inputs = vec![("!5", "!", 5), ("-15", "-", 15)];
+
+        for inputs in test_inputs.iter() {
+            let lexer = Lexer::new(inputs.0);
+            let mut parser = Parser::new(lexer);
+
+            let program = parser.parse_programm().unwrap();
+            parser.print_errors();
+
+            assert_eq!(1, program.statements.len());
+            let statement = &program.statements[0];
+            if let Statements::ExpressionStatement(_, exp) = statement {
+                if let Expressions::PrefixExpression(_, op, _) = exp {
+                    assert_eq!(inputs.1, op.as_str());
+                }
             }
         }
     }

@@ -12,6 +12,7 @@ pub enum Statements {
 pub enum Expressions {
     Variant1,
     IntegerLiteral(Token, usize),
+    PrefixExpression(Token, String, Box<Expressions>),
 }
 
 pub trait Node {
@@ -33,6 +34,7 @@ impl Node for Expressions {
         match self {
             Expressions::Variant1 => todo!(),
             Expressions::IntegerLiteral(token, _) => token.literal.to_owned(),
+            Expressions::PrefixExpression(_, _, _) => todo!(),
         }
     }
 }
