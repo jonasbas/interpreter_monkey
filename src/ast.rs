@@ -6,7 +6,7 @@ pub struct Programm {
 
 impl Node for Programm {
     fn token_literal(&self) -> String {
-        if self.statements.len() > 0 {
+        if !self.statements.is_empty() {
             self.statements[0].token_literal()
         } else {
             "".to_string()

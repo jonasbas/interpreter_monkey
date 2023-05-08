@@ -117,7 +117,7 @@ impl Parser {
         //TODO: no unwrap
         Ok(Statements::ExpressionStatement(
             cur_token,
-            expression.or(Some(Expressions::Variant1)).unwrap(),
+            expression.unwrap_or(Expressions::Variant1),
         ))
     }
 }
@@ -125,15 +125,15 @@ impl Parser {
 //Expressions
 impl Parser {
     fn parse_expression(&mut self, _lowest: u8) -> Option<Expressions> {
-        let left_exp = self.prefix_parse();
+        
 
-        left_exp
+        self.prefix_parse()
     }
 
     pub fn parse_integer_literal(&self) -> Option<Expressions> {
         let cur_token = self.cur_token.clone();
         let value = cur_token.literal.parse();
-        if let Err(_) = value {
+        if value.is_err() {
             return None;
         }
 
@@ -141,11 +141,11 @@ impl Parser {
     }
 
     pub fn prefix_parse(&mut self) -> Option<Expressions> {
-        return match self.cur_token.token_type {
+        match self.cur_token.token_type {
             TokenType::ILLEGAL => Some(Expressions::Variant1),
             TokenType::INT => self.parse_integer_literal(),
             _ => None,
-        };
+        }
     }
 }
 
@@ -204,7 +204,7 @@ mod tests {
 
         let programm = parser.parse_programm();
 
-        if let None = programm {
+        if programm.is_none() {
             panic!("programm is none!");
         }
 

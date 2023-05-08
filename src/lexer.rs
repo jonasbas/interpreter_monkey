@@ -201,11 +201,11 @@ impl Lexer {
 }
 
 fn is_letter(ch: char) -> bool {
-    ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_'
+    ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || ch == '_'
 }
 
 fn is_digit(ch: char) -> bool {
-    '0' <= ch && ch <= '9' && ch != ';'
+    ('0'..='9').contains(&ch) && ch != ';'
 }
 
 #[cfg(test)]
