@@ -194,6 +194,18 @@ impl Parser {
         ))
     }
 
+    fn parse_grouped_expression(&mut self) -> Option<Expressions> {
+        self.next_token();
+
+        let exp = self.parse_expression(LOWEST);
+
+        if self.expect_peek(TokenType::RParen).is_err() {
+            None
+        } else {
+            exp
+        }
+    }
+
     fn prefix_parse(&mut self) -> Option<Expressions> {
         match self.cur_token.token_type {
             TokenType::Illegal => Some(Expressions::Variant1),
@@ -202,6 +214,7 @@ impl Parser {
             TokenType::Minus => self.parse_prefix_expression(),
             TokenType::True => self.parse_boolean(),
             TokenType::False => self.parse_boolean(),
+            TokenType::LParen => self.parse_grouped_expression(),
             _ => None,
         }
     }
