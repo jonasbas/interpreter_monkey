@@ -187,12 +187,21 @@ impl Parser {
         ))
     }
 
+    fn parse_boolean(&self) -> Option<Expressions> {
+        Some(Expressions::BooleanExpression(
+            self.cur_token.clone(),
+            self.cur_token_is(TokenType::True),
+        ))
+    }
+
     fn prefix_parse(&mut self) -> Option<Expressions> {
         match self.cur_token.token_type {
             TokenType::Illegal => Some(Expressions::Variant1),
             TokenType::Int => self.parse_integer_literal(),
             TokenType::Bang => self.parse_prefix_expression(),
             TokenType::Minus => self.parse_prefix_expression(),
+            TokenType::True => self.parse_boolean(),
+            TokenType::False => self.parse_boolean(),
             _ => None,
         }
     }

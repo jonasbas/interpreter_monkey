@@ -14,6 +14,7 @@ pub enum Expressions {
     IntegerLiteral(Token, usize),
     PrefixExpression(Token, String, Box<Expressions>),
     InfixExpression(Token, Box<Expressions>, String, Box<Expressions>),
+    BooleanExpression(Token, bool),
 }
 
 pub trait Node {
@@ -37,6 +38,7 @@ impl Node for Expressions {
             Expressions::IntegerLiteral(token, _) => token.literal.to_owned(),
             Expressions::PrefixExpression(token, _, _) => token.literal.to_owned(),
             Expressions::InfixExpression(token, _, _, _) => token.literal.to_owned(),
+            Expressions::BooleanExpression(token, _) => token.literal.to_owned(),
         }
     }
 }
