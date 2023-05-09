@@ -1,6 +1,6 @@
 use crate::token::Token;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Statements {
     Let(Token, Identifier, Expressions),
     Return(Token, Expressions),
@@ -8,11 +8,12 @@ pub enum Statements {
 }
 
 //Placeholder Expressions
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expressions {
     Variant1,
     IntegerLiteral(Token, usize),
     PrefixExpression(Token, String, Box<Expressions>),
+    InfixExpression(Token, Box<Expressions>, String, Box<Expressions>),
 }
 
 pub trait Node {
@@ -35,11 +36,12 @@ impl Node for Expressions {
             Expressions::Variant1 => todo!(),
             Expressions::IntegerLiteral(token, _) => token.literal.to_owned(),
             Expressions::PrefixExpression(token, _, _) => token.literal.to_owned(),
+            Expressions::InfixExpression(token, _, _, _) => token.literal.to_owned(),
         }
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Identifier {
     pub token: Token,
     pub value: String,
